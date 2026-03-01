@@ -1,0 +1,20 @@
+name: LiquidTerm
+options:
+  bundleIdPrefix: com.liquidterm
+  deploymentTarget:
+    macOS: "14.0"
+targets:
+  LiquidTerm:
+    type: application
+    platform: macOS
+    sources:
+      - path: .
+        excludes:
+          - "Documentation/*"
+          - "README.md"
+    settings:
+      base:
+        SWIFT_VERSION: 5.9
+        MACOSX_DEPLOYMENT_TARGET: 14.0
+        INFOPLIST_FILE: Info.plist
+        GENERATE_INFOPLIST_FILE: NO

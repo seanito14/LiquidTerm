@@ -1,0 +1,392 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		0566C9A2522E8996A58A23DA /* VisualEffectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 473C5084D1CB7A2CBC3D42C1 /* VisualEffectView.swift */; };
+		0725AA852009624CAD0A865D /* SettingsStore.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0BFD45E8CE186F30B450AA9E /* SettingsStore.swift */; };
+		106B9796C67D3E6F3A139AFE /* PTY.swift in Sources */ = {isa = PBXBuildFile; fileRef = E1B7FC94A4FC5B842F178324 /* PTY.swift */; };
+		12CDA661E387B03130BDA8BB /* PaneGrid.swift in Sources */ = {isa = PBXBuildFile; fileRef = A8FA0C393D599919C274BEF0 /* PaneGrid.swift */; };
+		3000B86C3D9668797980D56B /* LiquidTermApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 1FF4DE254212A52185557992 /* LiquidTermApp.swift */; };
+		30FCDAB4114816435F60E747 /* CommandPalette.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9EC26444505287E3A8C769C0 /* CommandPalette.swift */; };
+		54397A9EE771132988D939C5 /* TerminalSession.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4046BAE52696D9C91304BC47 /* TerminalSession.swift */; };
+		77389B6C47D393AFFFA165B3 /* WindowManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = DB0EE887575B5E6F38C027B6 /* WindowManager.swift */; };
+		935D26360AC1ACC5DAD913AF /* TabModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = C5614D6E2E0EEE095A08D6B0 /* TabModel.swift */; };
+		AB9B192CAB2EAEAB2670EDE1 /* PaneLayout.swift in Sources */ = {isa = PBXBuildFile; fileRef = E4FCAC815D52F8EC7A7E00E9 /* PaneLayout.swift */; };
+		AD491B787D565C8B95CF603C /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E127642C91D7E11E61A244CD /* SettingsView.swift */; };
+		C09BD4F314FC542A9629F29C /* TerminalView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EC72311F81A5BB02D4A378CE /* TerminalView.swift */; };
+		E24CA187D4B935BFA6859431 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9153D779C86AB15A8C8C8FED /* ContentView.swift */; };
+		FFC5B6C18344E64C8817DB59 /* project.yml in Resources */ = {isa = PBXBuildFile; fileRef = 81505C7547AD3A48FC1EC434 /* project.yml */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		0BFD45E8CE186F30B450AA9E /* SettingsStore.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsStore.swift; sourceTree = "<group>"; };
+		1FF4DE254212A52185557992 /* LiquidTermApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LiquidTermApp.swift; sourceTree = "<group>"; };
+		4046BAE52696D9C91304BC47 /* TerminalSession.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalSession.swift; sourceTree = "<group>"; };
+		473C5084D1CB7A2CBC3D42C1 /* VisualEffectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VisualEffectView.swift; sourceTree = "<group>"; };
+		55E06B77DE917A5F57B0A6BE /* LiquidTerm.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = LiquidTerm.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		81505C7547AD3A48FC1EC434 /* project.yml */ = {isa = PBXFileReference; lastKnownFileType = text.yaml; path = project.yml; sourceTree = "<group>"; };
+		9153D779C86AB15A8C8C8FED /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		9EC26444505287E3A8C769C0 /* CommandPalette.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CommandPalette.swift; sourceTree = "<group>"; };
+		A1D725DC1CA931ABD58B7FBA /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		A8FA0C393D599919C274BEF0 /* PaneGrid.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaneGrid.swift; sourceTree = "<group>"; };
+		C5614D6E2E0EEE095A08D6B0 /* TabModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TabModel.swift; sourceTree = "<group>"; };
+		DB0EE887575B5E6F38C027B6 /* WindowManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = WindowManager.swift; sourceTree = "<group>"; };
+		E127642C91D7E11E61A244CD /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		E1B7FC94A4FC5B842F178324 /* PTY.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PTY.swift; sourceTree = "<group>"; };
+		E4FCAC815D52F8EC7A7E00E9 /* PaneLayout.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PaneLayout.swift; sourceTree = "<group>"; };
+		EC72311F81A5BB02D4A378CE /* TerminalView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TerminalView.swift; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXGroup section */
+		3A38776411A0CC081BE3803B /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+				E1B7FC94A4FC5B842F178324 /* PTY.swift */,
+				473C5084D1CB7A2CBC3D42C1 /* VisualEffectView.swift */,
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		49F943F60B41A104113DECAA /* LiquidTerm */ = {
+			isa = PBXGroup;
+			children = (
+				9EC26444505287E3A8C769C0 /* CommandPalette.swift */,
+				9153D779C86AB15A8C8C8FED /* ContentView.swift */,
+				A1D725DC1CA931ABD58B7FBA /* Info.plist */,
+				1FF4DE254212A52185557992 /* LiquidTermApp.swift */,
+				81505C7547AD3A48FC1EC434 /* project.yml */,
+				7D55CFA611A850C337B75729 /* Pane */,
+				F6CA9A8F41968348510C96C1 /* Settings */,
+				3A38776411A0CC081BE3803B /* Utilities */,
+				5EAAED0332C288531D010588 /* WindowManager */,
+			);
+			name = LiquidTerm;
+			path = .;
+			sourceTree = "<group>";
+		};
+		5EAAED0332C288531D010588 /* WindowManager */ = {
+			isa = PBXGroup;
+			children = (
+				C5614D6E2E0EEE095A08D6B0 /* TabModel.swift */,
+				DB0EE887575B5E6F38C027B6 /* WindowManager.swift */,
+			);
+			path = WindowManager;
+			sourceTree = "<group>";
+		};
+		6699501325FB02A0ABE5620C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				55E06B77DE917A5F57B0A6BE /* LiquidTerm.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		7D55CFA611A850C337B75729 /* Pane */ = {
+			isa = PBXGroup;
+			children = (
+				A8FA0C393D599919C274BEF0 /* PaneGrid.swift */,
+				E4FCAC815D52F8EC7A7E00E9 /* PaneLayout.swift */,
+				4046BAE52696D9C91304BC47 /* TerminalSession.swift */,
+				EC72311F81A5BB02D4A378CE /* TerminalView.swift */,
+			);
+			path = Pane;
+			sourceTree = "<group>";
+		};
+		BB297FACA975FEEA6F571D77 /* AI */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = AI;
+			sourceTree = "<group>";
+		};
+		C0F73F7C9C1DF9972E1CA5A6 = {
+			isa = PBXGroup;
+			children = (
+				BB297FACA975FEEA6F571D77 /* AI */,
+				49F943F60B41A104113DECAA /* LiquidTerm */,
+				7D55CFA611A850C337B75729 /* Pane */,
+				F6CA9A8F41968348510C96C1 /* Settings */,
+				3A38776411A0CC081BE3803B /* Utilities */,
+				5EAAED0332C288531D010588 /* WindowManager */,
+				6699501325FB02A0ABE5620C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		F6CA9A8F41968348510C96C1 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				0BFD45E8CE186F30B450AA9E /* SettingsStore.swift */,
+				E127642C91D7E11E61A244CD /* SettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		592B06AF89F72C98E0A70447 /* LiquidTerm */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BB666C1FDE5107201A52362F /* Build configuration list for PBXNativeTarget "LiquidTerm" */;
+			buildPhases = (
+				5F6DCC5FB27B15BAA7B6320E /* Sources */,
+				396E4FCEAC804800019F04CC /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = LiquidTerm;
+			packageProductDependencies = (
+			);
+			productName = LiquidTerm;
+			productReference = 55E06B77DE917A5F57B0A6BE /* LiquidTerm.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		6FEE28DF93F44C79117282FC /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+			};
+			buildConfigurationList = 1096DCD47DDF2E1AB237AA33 /* Build configuration list for PBXProject "LiquidTerm" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = C0F73F7C9C1DF9972E1CA5A6;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				592B06AF89F72C98E0A70447 /* LiquidTerm */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		396E4FCEAC804800019F04CC /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FFC5B6C18344E64C8817DB59 /* project.yml in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		5F6DCC5FB27B15BAA7B6320E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				30FCDAB4114816435F60E747 /* CommandPalette.swift in Sources */,
+				E24CA187D4B935BFA6859431 /* ContentView.swift in Sources */,
+				3000B86C3D9668797980D56B /* LiquidTermApp.swift in Sources */,
+				106B9796C67D3E6F3A139AFE /* PTY.swift in Sources */,
+				12CDA661E387B03130BDA8BB /* PaneGrid.swift in Sources */,
+				AB9B192CAB2EAEAB2670EDE1 /* PaneLayout.swift in Sources */,
+				0725AA852009624CAD0A865D /* SettingsStore.swift in Sources */,
+				AD491B787D565C8B95CF603C /* SettingsView.swift in Sources */,
+				935D26360AC1ACC5DAD913AF /* TabModel.swift in Sources */,
+				54397A9EE771132988D939C5 /* TerminalSession.swift in Sources */,
+				C09BD4F314FC542A9629F29C /* TerminalView.swift in Sources */,
+				0566C9A2522E8996A58A23DA /* VisualEffectView.swift in Sources */,
+				77389B6C47D393AFFFA165B3 /* WindowManager.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		41695AB157EF50F553F7F977 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+		44031B3EDAE46BBA91E8B57F /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.liquidterm.LiquidTerm;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.9;
+			};
+			name = Debug;
+		};
+		B3287828E8E2B2FA706F8107 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		BCF7859461215DA0A2EEB24D /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				COMBINE_HIDPI_IMAGES = YES;
+				GENERATE_INFOPLIST_FILE = NO;
+				INFOPLIST_FILE = Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.liquidterm.LiquidTerm;
+				SDKROOT = macosx;
+				SWIFT_VERSION = 5.9;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		1096DCD47DDF2E1AB237AA33 /* Build configuration list for PBXProject "LiquidTerm" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B3287828E8E2B2FA706F8107 /* Debug */,
+				41695AB157EF50F553F7F977 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		BB666C1FDE5107201A52362F /* Build configuration list for PBXNativeTarget "LiquidTerm" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				44031B3EDAE46BBA91E8B57F /* Debug */,
+				BCF7859461215DA0A2EEB24D /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 6FEE28DF93F44C79117282FC /* Project object */;
+}
