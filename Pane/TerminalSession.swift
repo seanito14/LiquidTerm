@@ -13,6 +13,7 @@ class TerminalSession: Identifiable, ObservableObject {
     private let pty = PTY()
     private let maxOutputLength = 100_000
     private var isStarted = false
+    private let outputQueue = DispatchQueue(label: "com.liquidterm.output", qos: .userInteractive)
     
     init(id: UUID = UUID(), title: String = "zsh", fontSize: Double = 14.0) {
         self.id = id
@@ -63,12 +64,16 @@ class TerminalSession: Identifiable, ObservableObject {
             .replacingOccurrences(of: "\r", with: "")
             .replacingOccurrences(of: "\u{07}", with: "")
         
-        DispatchQueue.main.async {
-            self.output += filtered
+        outputQueue.async { [weak self] in
+            guard let self = self else { return }
             
-            // Trim buffer if too large
-            if self.output.count > self.maxOutputLength {
-                self.output = String(self.output.suffix(self.maxOutputLength))
+            DispatchQueue.main.async {
+                self.output += filtered
+                
+                // Trim buffer if too large
+                if self.output.count > self.maxOutputLength {
+                    self.output = String(self.output.suffix(self.maxOutputLength))
+                }
             }
         }
     }

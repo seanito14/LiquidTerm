@@ -4,9 +4,10 @@
 import SwiftUI
 
 struct ContentView: View {
-    @ObservedObject var session: TerminalSession
+    @StateObject var windowManager = WindowManager()
     @EnvironmentObject var settings: SettingsStore
     @State private var showSettings = false
+    @State private var showCommandPalette = false
     
     var body: some View {
         ZStack {
@@ -14,58 +15,63 @@ struct ContentView: View {
                 .edgesIgnoringSafeArea(.all)
             
             VStack(spacing: 0) {
-                if settings.showTitleBar {
-                    // Custom Title Bar
-                    HStack {
-                        Text(session.title)
-                            .font(.caption)
-                            .foregroundColor(settings.currentTheme.textColor.opacity(0.7))
-                        
-                        Spacer()
-                        
-                        Button(action: { showSettings.toggle() }) {
-                            Image(systemName: "slider.horizontal.3")
-                                .foregroundColor(settings.currentTheme.textColor.opacity(0.8))
-                        }
-                        .buttonStyle(.plain)
-                        .popover(isPresented: $showSettings) {
-                            SettingsView()
-                                .environmentObject(settings)
-                        }
-                    }
-                    .padding(.horizontal, 12)
-                    .padding(.top, 10)
-                    .padding(.bottom, 4)
+                if let activeTab = windowManager.activeTab {
+                    PaneGrid(tab: activeTab, showSettings: $showSettings, showCommandPalette: $showCommandPalette)
                 } else {
-                    // Minimal floating button for settings when title bar is hidden
-                    HStack {
-                        Spacer()
-                        Button(action: { showSettings.toggle() }) {
-                            Image(systemName: "gearshape")
-                                .font(.system(size: 10))
-                                .foregroundColor(settings.currentTheme.textColor.opacity(0.3))
-                        }
-                        .buttonStyle(.plain)
-                        .padding(4)
-                        .popover(isPresented: $showSettings) {
-                            SettingsView()
-                                .environmentObject(settings)
-                        }
-                    }
+                    Spacer()
+                    Text("No Active Sessions")
+                        .foregroundColor(.secondary)
+                    Spacer()
                 }
                 
-                TerminalView(session: session)
-                    .padding(.horizontal, 8)
-                    .padding(.bottom, 8)
+                // Hidden button to handle the Global Keyboard Shortcut
+                Button("") {
+                    showCommandPalette.toggle()
+                }
+                .buttonStyle(.plain)
+                .keyboardShortcut("p", modifiers: [.command])
+                .opacity(0)
+                .frame(width: 0, height: 0)
+            }
+            
+            if showSettings {
+                Color.black.opacity(0.3)
+                    .edgesIgnoringSafeArea(.all)
+                    .onTapGesture { showSettings = false }
+                
+                SettingsView()
+                    .environmentObject(settings)
+                    .frame(width: 400, height: 300)
+                    .background(VisualEffectView(material: .popover, blendingMode: .behindWindow))
+                    .cornerRadius(12)
+                    .shadow(radius: 20)
+                    .transition(.scale.combined(with: .opacity))
+            }
+            
+            if showCommandPalette {
+                Color.black.opacity(0.3)
+                    .edgesIgnoringSafeArea(.all)
+                    .onTapGesture { showCommandPalette = false }
+                
+                CommandPalette(isPresented: $showCommandPalette)
+                    .transition(.scale.combined(with: .opacity))
             }
         }
         .frame(minWidth: 700, minHeight: 450)
+        .environmentObject(windowManager)
         .onAppear {
-            session.fontSize = settings.globalFontSize
-            session.activate()
+            if let activeTab = windowManager.activeTab {
+                for session in activeTab.sessions {
+                    session.fontSize = settings.globalFontSize
+                }
+            }
         }
-        .onChange(of: settings.globalFontSize) { newValue in
-            session.fontSize = newValue
+        .onChange(of: settings.globalFontSize) {
+            if let activeTab = windowManager.activeTab {
+                for session in activeTab.sessions {
+                    session.fontSize = settings.globalFontSize
+                }
+            }
         }
     }
 }

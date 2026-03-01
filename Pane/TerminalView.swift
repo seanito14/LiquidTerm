@@ -6,7 +6,12 @@ import AppKit
 
 struct TerminalView: NSViewRepresentable {
     @ObservedObject var session: TerminalSession
+    @ObservedObject var tab: TabModel
+    @EnvironmentObject var windowManager: WindowManager
     @EnvironmentObject var settings: SettingsStore
+    
+    @Binding var showSettings: Bool
+    @Binding var showCommandPalette: Bool
     
     class Coordinator: NSObject, NSTextViewDelegate {
         var session: TerminalSession?
@@ -19,12 +24,89 @@ struct TerminalView: NSViewRepresentable {
         }
     }
     
+    class CustomNSTextView: NSTextView {
+        var terminalView: TerminalView?
+        
+        override func menu(for event: NSEvent) -> NSMenu? {
+            let menu = NSMenu(title: "Context Menu")
+            
+            guard let tv = terminalView else { return super.menu(for: event) }
+            
+            let newTabItem = NSMenuItem(title: "New Tab", action: #selector(handleNewTab), keyEquivalent: "t")
+            newTabItem.target = self
+            menu.addItem(newTabItem)
+            
+            let closeTabItem = NSMenuItem(title: "Close Tab", action: #selector(handleCloseTab), keyEquivalent: "w")
+            closeTabItem.target = self
+            menu.addItem(closeTabItem)
+            
+            menu.addItem(NSMenuItem.separator())
+            
+            let splitHorizontaItem = NSMenuItem(title: "Split Horizontally", action: #selector(handleSplitHorizontal), keyEquivalent: "")
+            splitHorizontaItem.target = self
+            menu.addItem(splitHorizontaItem)
+            
+            let splitVerticalItem = NSMenuItem(title: "Split Vertically", action: #selector(handleSplitVertical), keyEquivalent: "")
+            splitVerticalItem.target = self
+            menu.addItem(splitVerticalItem)
+            
+            let closeSplitItem = NSMenuItem(title: "Close Split", action: #selector(handleCloseSplit), keyEquivalent: "")
+            closeSplitItem.target = self
+            menu.addItem(closeSplitItem)
+            
+            menu.addItem(NSMenuItem.separator())
+            
+            let commandPaletteItem = NSMenuItem(title: "Command Palette", action: #selector(handleCommandPalette), keyEquivalent: "p")
+            commandPaletteItem.target = self
+            menu.addItem(commandPaletteItem)
+            
+            let settingsItem = NSMenuItem(title: "Settings", action: #selector(handleSettings), keyEquivalent: ",")
+            settingsItem.target = self
+            menu.addItem(settingsItem)
+            
+            return menu
+        }
+        
+        @objc func handleNewTab() {
+            terminalView?.windowManager.createNewTab()
+        }
+        
+        @objc func handleCloseTab() {
+            if let tabId = terminalView?.tab.id {
+                terminalView?.windowManager.closeTab(id: tabId)
+            }
+        }
+        
+        @objc func handleSplitHorizontal() {
+            terminalView?.windowManager.splitActiveTab(vertical: false)
+        }
+        
+        @objc func handleSplitVertical() {
+            terminalView?.windowManager.splitActiveTab(vertical: true)
+        }
+        
+        @objc func handleCloseSplit() {
+            if let sessionId = terminalView?.session.id {
+                terminalView?.tab.removeSession(id: sessionId)
+            }
+        }
+        
+        @objc func handleCommandPalette() {
+            terminalView?.showCommandPalette = true
+        }
+        
+        @objc func handleSettings() {
+            terminalView?.showSettings = true
+        }
+    }
+
     func makeCoordinator() -> Coordinator {
         return Coordinator()
     }
     
     func makeNSView(context: Context) -> NSScrollView {
-        let textView = NSTextView()
+        let textView = CustomNSTextView()
+        textView.terminalView = self
         textView.delegate = context.coordinator
         context.coordinator.session = session
         
@@ -44,7 +126,8 @@ struct TerminalView: NSViewRepresentable {
     }
     
     func updateNSView(_ nsView: NSScrollView, context: Context) {
-        guard let textView = nsView.documentView as? NSTextView else { return }
+        guard let textView = nsView.documentView as? CustomNSTextView else { return }
+        textView.terminalView = self
         
         // Update content
         if textView.string != session.output {

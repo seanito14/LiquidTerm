@@ -12,6 +12,7 @@ targets:
         excludes:
           - "Documentation/*"
           - "README.md"
+          - ".build/*"
     settings:
       base:
         SWIFT_VERSION: 5.9

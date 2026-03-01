@@ -12,7 +12,7 @@ enum TerminalTheme: String, CaseIterable, Codable {
     
     var backgroundColor: Color {
         switch self {
-        case .liquid: return Color.black.opacity(0.4)
+        case .liquid: return Color.black.opacity(0.2)
         case .dark: return Color.black
         case .light: return Color.white
         case .matrix: return Color.black
@@ -35,7 +35,7 @@ class SettingsStore: ObservableObject {
     @AppStorage("globalFontSize") var globalFontSize: Double = 14
     @AppStorage("reduceTransparency") var reduceTransparency: Bool = false
     @AppStorage("cornerRadius") var cornerRadius: Double = 12
-    @AppStorage("backgroundOpacity") var backgroundOpacity: Double = 0.6
+    @AppStorage("backgroundOpacity") var backgroundOpacity: Double = 0.4
     @AppStorage("blurRadius") var blurRadius: Double = 20.0
     @AppStorage("currentTheme") var currentTheme: TerminalTheme = .liquid
     @AppStorage("fontName") var fontName: String = "SF Mono"
@@ -46,7 +46,7 @@ class SettingsStore: ObservableObject {
     
     var cursorColor: Color {
         get { Color(hex: cursorColorHex) ?? .white }
-        set { cursorColorHex = newValue.toHex() ?? "#FFFFFF" }
+        set { cursorColorHex = newValue.toHex() ?? cursorColorHex }
     }
 }
 

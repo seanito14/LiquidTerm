@@ -30,7 +30,7 @@ struct LiquidBackground: View {
     var body: some View {
         ZStack {
             if !settings.reduceTransparency {
-                VisualEffectView(material: .underWindowBackground, blendingMode: .behindWindow)
+                VisualEffectView(material: .fullScreenUI, blendingMode: .behindWindow)
                     .overlay(settings.currentTheme.backgroundColor.opacity(settings.backgroundOpacity))
                     .blur(radius: settings.blurRadius)
             } else {

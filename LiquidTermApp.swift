@@ -6,11 +6,10 @@ import SwiftUI
 @main
 struct LiquidTermApp: App {
     @StateObject private var settings = SettingsStore()
-    @StateObject private var session = TerminalSession()
     
     var body: some Scene {
         WindowGroup {
-            ContentView(session: session)
+            ContentView()
                 .environmentObject(settings)
                 .onAppear {
                     // Set window background to clear so the visual effect view works
