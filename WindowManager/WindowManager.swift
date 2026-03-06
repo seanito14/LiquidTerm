@@ -15,7 +15,6 @@ class WindowManager: ObservableObject, Identifiable {
     }
     
     init() {
-        // Initialize with a default tab if empty
         createNewTab()
         AppManager.shared.register(self)
     }
@@ -25,8 +24,9 @@ class WindowManager: ObservableObject, Identifiable {
     }
     
     func createNewTab() {
+        let index = tabs.count + 1
         let newSession = TerminalSession(title: "zsh")
-        let newTab = TabModel(title: "Tab \(tabs.count + 1)", sessions: [newSession])
+        let newTab = TabModel(title: "Tab \(index)", sessions: [newSession])
         tabs.append(newTab)
         activeTabId = newTab.id
         newSession.activate()
@@ -35,7 +35,7 @@ class WindowManager: ObservableObject, Identifiable {
     func closeTab(id: UUID) {
         tabs.removeAll { $0.id == id }
         if activeTabId == id {
-            activeTabId = tabs.first?.id
+            activeTabId = tabs.last?.id
         }
         
         if tabs.isEmpty {
@@ -45,9 +45,26 @@ class WindowManager: ObservableObject, Identifiable {
     
     func splitActiveTab(vertical: Bool) {
         guard let tab = activeTab else { return }
+        tab.setPreferredSplitLayout(vertical: vertical)
+        
         let newSession = TerminalSession(title: "zsh")
         tab.addSession(newSession)
-        tab.layout = vertical ? .verticalSplit : .horizontalSplit
+        
         newSession.activate()
+    }
+    
+    // Tab navigation
+    func selectNextTab() {
+        guard let currentId = activeTabId,
+              let currentIndex = tabs.firstIndex(where: { $0.id == currentId }) else { return }
+        let nextIndex = (currentIndex + 1) % tabs.count
+        activeTabId = tabs[nextIndex].id
+    }
+    
+    func selectPreviousTab() {
+        guard let currentId = activeTabId,
+              let currentIndex = tabs.firstIndex(where: { $0.id == currentId }) else { return }
+        let prevIndex = (currentIndex - 1 + tabs.count) % tabs.count
+        activeTabId = tabs[prevIndex].id
     }
 }

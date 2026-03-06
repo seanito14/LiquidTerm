@@ -6,15 +6,15 @@ import SwiftUI
 struct CommandPalette: View {
     @Binding var isPresented: Bool
     @State private var searchText = ""
+    @FocusState private var isSearchFocused: Bool
     @EnvironmentObject var windowManager: WindowManager
     @EnvironmentObject var settings: SettingsStore
     
     let commands = [
-        CommandItem(name: "New Tab", icon: "plus.square", action: "new_tab"),
-        CommandItem(name: "Split Vertical", icon: "square.split.2x1", action: "split_v"),
-        CommandItem(name: "Split Horizontal", icon: "square.split.1x2", action: "split_h"),
-        CommandItem(name: "Toggle Settings", icon: "gearshape", action: "settings"),
-        CommandItem(name: "Close Tab", icon: "xmark.square", action: "close_tab")
+        CommandItem(name: "Split Vertical", icon: "square.split.2x1", action: "split_v", shortcut: "⌘D"),
+        CommandItem(name: "Split Horizontal", icon: "square.split.1x2", action: "split_h", shortcut: "⇧⌘D"),
+        CommandItem(name: "Toggle Settings", icon: "gearshape", action: "settings", shortcut: "⌘,"),
+        CommandItem(name: "Close Pane or Tab", icon: "xmark.square", action: "close_pane", shortcut: "⌘W")
     ]
     
     var filteredCommands: [CommandItem] {
@@ -33,6 +33,7 @@ struct CommandPalette: View {
                 TextField("Type a command...", text: $searchText)
                     .textFieldStyle(.plain)
                     .font(.system(size: 16))
+                    .focused($isSearchFocused)
                     .onSubmit {
                         if let first = filteredCommands.first {
                             execute(first)
@@ -57,7 +58,7 @@ struct CommandPalette: View {
                                     .frame(width: 24)
                                 Text(command.name)
                                 Spacer()
-                                Text("⌘P")
+                                Text(command.shortcut)
                                     .font(.system(size: 10, weight: .light))
                                     .foregroundColor(.secondary)
                             }
@@ -72,6 +73,11 @@ struct CommandPalette: View {
                 .padding(.vertical, 8)
             }
             .frame(maxHeight: 300)
+        }
+        .onAppear {
+            DispatchQueue.main.async {
+                isSearchFocused = true
+            }
         }
         .frame(width: 400)
         .background(
@@ -88,16 +94,14 @@ struct CommandPalette: View {
     
     private func execute(_ command: CommandItem) {
         switch command.action {
-        case "new_tab":
-            windowManager.createNewTab()
         case "split_v":
             windowManager.splitActiveTab(vertical: true)
         case "split_h":
             windowManager.splitActiveTab(vertical: false)
-        case "close_tab":
-            if let activeTabId = windowManager.activeTabId {
-                windowManager.closeTab(id: activeTabId)
-            }
+        case "settings":
+            NotificationCenter.default.post(name: .toggleSettings, object: nil)
+        case "close_pane":
+            NotificationCenter.default.post(name: .closePane, object: nil)
         default:
             break
         }
@@ -110,4 +114,5 @@ struct CommandItem: Identifiable {
     let name: String
     let icon: String
     let action: String
+    let shortcut: String
 }

@@ -1,6 +1,7 @@
 # LiquidTerm: Technical Documentation
 
 ## Table of Contents
+
 1. [Overview](#overview)
 2. [Product Requirements Document (PRD)](#product-requirements-document-prd)
 3. [Technical Architecture](#technical-architecture)
@@ -38,7 +39,9 @@
 ---
 
 ## Overview
+
 **LiquidTerm** is a native macOS terminal emulator designed for power users and accessibility. It combines:
+
 - **Multi-window, multi-tab workflows** (like iTerm2).
 - **Draggable pane grids** with zoom/focus.
 - **Liquid Glass UI** (translucent materials, rounded corners, dynamic blur).
@@ -54,6 +57,7 @@
 ## Product Requirements Document (PRD)
 
 ### Goals
+
 1. **Native macOS Experience**: Leverage SwiftUI + AppKit for performance and HIG compliance.
 2. **Professional Workflows**: Multi-window, multi-tab, and pane grids with drag-and-drop.
 3. **Accessibility-First**: Support vision-impaired users with dynamic font scaling, high contrast, and VoiceOver.
@@ -61,11 +65,13 @@
 5. **Liquid Glass Aesthetic**: Translucent materials, rounded corners, and dynamic blur (respecting Reduce Transparency).
 
 ### Non-Goals
+
 - iOS/iPadOS support.
 - Plugin system (Phase 3).
-- Full terminal emulator (Phase 2: stub first, then PTY).
+- Full terminal emulator (implemented).
 
 ### User Stories
+
 | Role               | Story                                                                                     |
 |--------------------|------------------------------------------------------------------------------------------|
 | Developer          | Drag a tab to a new window to work across multiple displays.                             |
@@ -75,6 +81,7 @@
 | Designer           | Customize blur intensity, corner radius, and background opacity.                         |
 
 ### Acceptance Criteria
+
 - [x] App launches with a single window/tab/pane (stub terminal).
 - [x] Drag tab to new window; drag pane to new tab/window.
 - [x] Split panes, resize with handles, zoom pane.
@@ -87,16 +94,21 @@
 ## Technical Architecture
 
 ### Module Breakdown
-| Module            | Responsibility                                                                           |
-|-------------------|------------------------------------------------------------------------------------------|
-| **WindowManager** | Multi-window lifecycle (`NSWindow` + `NSWindowController`).                              |
-| **TabModel**      | Tabs and active pane state (`ObservableObject`).                                         |
-| **PaneLayout**    | Binary split tree for pane arrangement (recursive enum).                                |
-| **TerminalView**  | Stub for Phase 1; later `NSViewRepresentable` for PTY.                                   |
-| **AIService**     | Protocol-based AI providers (OpenAI, Anthropic, Local).                                 |
-| **SettingsStore** | Persistence for appearance/AI settings (`UserDefaults` + `Keychain`).                   |
+
+| Module              | Responsibility                                                                           |
+|---------------------|------------------------------------------------------------------------------------------|
+| **WindowManager**   | Multi-window lifecycle (`NSWindow` + `NSWindowController`).                              |
+| **TabModel**        | Tabs and active pane state (`ObservableObject`).                                         |
+| **PaneLayout**      | Resizable split stack for pane arrangement.                                              |
+| **TerminalCell**    | Character cell model with color (16/256/truecolor) and text attributes.                  |
+| **TerminalBuffer**  | Grid buffer with cursor, scroll regions, alternate screen, `NSAttributedString` render.  |
+| **ANSIParser**      | VT100/xterm escape sequence state machine (CSI, SGR, OSC, DEC private modes).            |
+| **TerminalSession** | PTY lifecycle management; feeds raw output through parser into buffer.                   |
+| **TerminalView**    | `NSViewRepresentable` bridging `NSScrollView` + `NSTextView` for attributed rendering.   |
+| **SettingsStore**   | Persistence for appearance settings (`UserDefaults`).                                    |
 
 ### Data Flow
+
 ```mermaid
 flowchart TD
     WindowManager -->|owns| TabModel
@@ -107,6 +119,7 @@ flowchart TD
 ```
 
 ### Security Model
+
 - **API Keys**: Stored in macOS Keychain (`kSecClassGenericPassword`).
 - **Redaction**: Regex to mask secrets (e.g., `AWS_SECRET_ACCESS_KEY=...`).
 - **Logging**: Structured local logs; never log raw keys or sensitive output.
@@ -116,15 +129,18 @@ flowchart TD
 ## UI/UX Specification
 
 ### Window Management
+
 - **Toolbar**: New tab, AI panel, settings, command palette.
 - **Tab Strip**: Drag to reorder; double-click to rename.
 - **Window Chrome**: Subtle glass effect (respects Reduce Transparency).
 
 ### Tab System
+
 - **Drag-and-Drop**: Tabs can be dragged to new windows or reordered.
 - **Context Menu**: Close tab, split pane, rename tab.
 
 ### Pane Layout
+
 - **Binary Split Tree**: Leaf = terminal session; node = split direction + ratio.
 - **Drag Handles**: Resize split ratio.
 - **Commands**:
@@ -134,6 +150,7 @@ flowchart TD
   - Zoom pane (`⌘⇧Z`).
 
 ### Accessibility
+
 | Feature                     | Implementation                                                                           |
 |-----------------------------|------------------------------------------------------------------------------------------|
 | Font Scaling                | Global slider (12–28pt) + per-pane override.                                             |
@@ -143,6 +160,7 @@ flowchart TD
 | Keyboard Navigation         | Full control via shortcuts (see [Keyboard Shortcuts](#keyboard-shortcuts)).             |
 
 ### Keyboard Shortcuts
+
 | Action               | Shortcut          |
 |----------------------|-------------------|
 | New Window           | ⌘N                |
@@ -161,26 +179,41 @@ flowchart TD
 ## Core Features
 
 ### Multi-Window Support
+
 - **Implementation**: `NSWindow` + `NSWindowController`.
 - **Persistence**: Restore last session layout (JSON + `Codable`).
 
 ### Pane Grid System
+
 - **Data Structure**: Binary split tree (recursive enum).
+
   ```swift
   indirect enum PaneLayout: Codable {
       case leaf(id: UUID, session: TerminalSession)
       case split(orientation: SplitOrientation, ratio: Double, left: PaneLayout, right: PaneLayout)
   }
   ```
+
 - **Operations**: Split, close, zoom, swap.
 
 ### Terminal Engine
-- **Phase 1**: Stub `NSTextView` with fake prompt.
-- **Phase 2**: Real PTY integration (`forkpty` + ANSI parsing).
-  - Use `NSViewRepresentable` to bridge `NSScrollView` + `NSTextView`.
-  - Parse ANSI escape sequences (recommend `SwiftANSI` library).
+
+The terminal engine is a custom VT100/xterm-compatible emulator built from scratch:
+
+- **TerminalCell**: Each cell holds a `Character` + `CellAttributes` (fg/bg color, bold, dim, underline, inverse, strikethrough).
+- **TerminalBuffer**: A 2D grid of cells with cursor position, scroll region, tab stops, and main/alternate screen buffers. Renders to `NSAttributedString` for display.
+- **ANSIParser**: A state machine consuming raw PTY bytes with states: Ground, Escape, CSI, CSI-Private, OSC, DCS. Handles:
+  - Cursor movement (CUU/CUD/CUF/CUB/CUP/CHA/VPA)
+  - Erase operations (ED/EL/ECH)
+  - Line/char insert and delete (IL/DL/ICH/DCH)
+  - Scrolling (SU/SD, DECSTBM scroll regions)
+  - SGR colors and attributes (standard 16, 256-palette, 24-bit truecolor)
+  - DEC private modes (alternate screen 1049, cursor visibility 25, auto-wrap 7)
+  - Device queries / responses (DSR, DA)
+- **Supported Programs**: `htop`, `vim`, `nano`, `less`, `man`, `top`, `ssh`, and any VT100-compatible TUI.
 
 ### Liquid Glass UI
+
 - **Materials**: `NSVisualEffectView` with `.sidebar` material.
 - **Customization**:
   - Blur intensity.
@@ -189,6 +222,7 @@ flowchart TD
 - **Accessibility**: Respects Reduce Transparency and Increase Contrast.
 
 ### AI Integration
+
 - **Providers**: OpenAI, Anthropic, Local (placeholder).
 - **Features**:
   - Explain selected command/output.
@@ -199,6 +233,7 @@ flowchart TD
   - Redaction layer masks secrets.
 
 ### Command Palette
+
 - **Shortcut**: `⌘⇧P`.
 - **Actions**: Split, close pane, open settings, change theme, AI actions.
 - **Search**: Fuzzy search for commands.
@@ -208,11 +243,14 @@ flowchart TD
 ## Implementation Details
 
 ### SwiftUI + AppKit Bridging
+
 - **`NSViewRepresentable`**: Wrap `NSScrollView` + `NSTextView` for terminal rendering.
 - **`NSVisualEffectView`**: Use `VisualEffectView` wrapper for glass effects.
 
 ### PaneLayout Binary Tree
+
 - **Operations**:
+
   ```swift
   func split(_ orientation: SplitOrientation) {
       guard case let .leaf(id, session) = paneLayout else { return }
@@ -227,17 +265,24 @@ flowchart TD
   ```
 
 ### PTY Integration
-- **Phase 2**: Use `forkpty` to spawn a shell process.
-- **Rendering**: Metal-backed text rendering (later optimization).
+
+- Uses `forkpty` to spawn `/bin/zsh -i` with correct initial window size.
+- PTY spawn is **deferred** until the view provides real dimensions, preventing duplicate prompts from `SIGWINCH`.
+- Window resize is **debounced** (100ms) to coalesce rapid SwiftUI layout passes.
+- Raw PTY output → `ANSIParser.feed()` → `TerminalBuffer` mutations → `NSAttributedString` render → `NSTextView` display.
+- Parser responses (cursor position report, device attributes) are sent back to the PTY for interactive program support.
 
 ### AI Provider Abstraction
+
 - **Protocol**:
+
   ```swift
   protocol AIProvider {
       func explain(text: String, completion: @escaping (Result<String, Error>) -> Void)
       func generateCommand(prompt: String, completion: @escaping (Result<String, Error>) -> Void)
   }
   ```
+
 - **Providers**: OpenAI, Anthropic, Local (placeholder).
 
 ---
@@ -245,28 +290,35 @@ flowchart TD
 ## Testing Strategy
 
 ### Unit Tests
+
 - **PaneLayout**: Test split/close/zoom operations.
 - **AIService**: Test provider fallback and redaction.
 
 ### UI Tests
+
 - **Multi-Window**: Drag tab to new window; verify `WindowManager` updates.
 - **Accessibility**: Toggle "Reduce Transparency"; verify text contrast.
 
 ### Accessibility Audit
+
 - **VoiceOver**: Navigate panes/tabs; verify labels.
 - **Keyboard-Only**: Tab through UI; verify focus order.
 
 ---
 
 ## Build & Deployment
+
 1. **Prerequisites**:
    - Xcode 15+.
    - macOS 14+.
 2. **Build**:
+
    ```bash
    xcodebuild -project LiquidTerm.xcodeproj -scheme LiquidTerm -destination 'platform=macOS' build
    ```
+
 3. **Run**:
+
    ```bash
    open -a LiquidTerm.app
    ```
@@ -274,15 +326,18 @@ flowchart TD
 ---
 
 ## Future Roadmap
-1. **Phase 2**: Real PTY integration (`forkpty` + ANSI parsing).
+
+1. ~~**Phase 2**: Real PTY integration (`forkpty` + ANSI parsing).~~ ✅ Implemented.
 2. **Phase 3**: Plugin system (custom themes, shell integrations).
 3. **Phase 4**: iCloud sync for settings/sessions.
+4. **Phase 5**: Metal-backed text rendering for high-performance rendering.
 
 ---
 
 ## Appendices
 
 ### Glossary
+
 | Term               | Definition                                                                               |
 |--------------------|------------------------------------------------------------------------------------------|
 | PTY                | Pseudoterminal (Unix API for terminal emulation).                                        |
@@ -290,6 +345,7 @@ flowchart TD
 | Split Tree         | Binary tree for pane layout (leaf = session, node = split direction + ratio).            |
 
 ### API References
+
 - [SwiftUI](https://developer.apple.com/documentation/swiftui)
 - [AppKit](https://developer.apple.com/documentation/appkit)
 - [NSVisualEffectView](https://developer.apple.com/documentation/appkit/nsvisualeffectview)

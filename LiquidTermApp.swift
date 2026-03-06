@@ -12,13 +12,45 @@ struct LiquidTermApp: App {
             ContentView()
                 .environmentObject(settings)
                 .onAppear {
-                    // Set window background to clear so the visual effect view works
-                    if let window = NSApplication.shared.windows.first {
-                        window.isOpaque = false
-                        window.backgroundColor = .clear
-                    }
+                    configureExistingWindows()
+                }
+                .onReceive(NotificationCenter.default.publisher(for: NSWindow.didBecomeMainNotification)) { note in
+                    guard let window = note.object as? NSWindow else { return }
+                    configure(window: window)
                 }
         }
         .windowStyle(.hiddenTitleBar)
+        .commands {
+            // Remove the default "Window > Show Tab Bar" menu
+            CommandGroup(replacing: .windowList) {}
+        }
     }
+    
+    private func configureExistingWindows() {
+        NSWindow.allowsAutomaticWindowTabbing = false
+        for window in NSApplication.shared.windows {
+            configure(window: window)
+        }
+    }
+    
+    private func configure(window: NSWindow) {
+        window.tabbingMode = .disallowed
+        window.toolbar = nil
+        window.standardWindowButton(.toolbarButton)?.isHidden = true
+        
+        window.isOpaque = false
+        window.backgroundColor = .clear
+        window.titlebarAppearsTransparent = true
+        window.titleVisibility = .hidden
+        window.titlebarSeparatorStyle = .none
+        window.styleMask.insert(.fullSizeContentView)
+    }
+}
+
+// MARK: - Notification Names for global commands
+extension Notification.Name {
+    static let splitHorizontal = Notification.Name("com.liquidterm.splitHorizontal")
+    static let splitVertical = Notification.Name("com.liquidterm.splitVertical")
+    static let closePane = Notification.Name("com.liquidterm.closePane")
+    static let toggleSettings = Notification.Name("com.liquidterm.toggleSettings")
 }

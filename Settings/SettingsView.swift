@@ -40,7 +40,6 @@ struct SettingsView: View {
                     set: { settings.cursorColor = $0 }
                 ))
                 
-                Toggle("Show Title Bar", isOn: $settings.showTitleBar)
             }
             
             Section("Typography") {

@@ -54,9 +54,11 @@ extension Color {
     init?(hex: String) {
         var hexSanitized = hex.trimmingCharacters(in: .whitespacesAndNewlines)
         hexSanitized = hexSanitized.replacingOccurrences(of: "#", with: "")
+        guard hexSanitized.count == 6 else { return nil }
 
         var rgb: UInt64 = 0
-        guard Scanner(string: hexSanitized).scanHexInt64(&rgb) else { return nil }
+        let scanner = Scanner(string: hexSanitized)
+        guard scanner.scanHexInt64(&rgb), scanner.isAtEnd else { return nil }
 
         self.init(
             red: Double((rgb & 0xFF0000) >> 16) / 255.0,
@@ -68,9 +70,15 @@ extension Color {
     func toHex() -> String? {
         let uicov = NSColor(self)
         guard let rgbColor = uicov.usingColorSpace(.deviceRGB) else { return nil }
-        let red = Int(rgbColor.redComponent * 255)
-        let green = Int(rgbColor.greenComponent * 255)
-        let blue = Int(rgbColor.blueComponent * 255)
+        
+        func toComponent(_ value: CGFloat) -> Int {
+            let scaled = Int((value * 255).rounded())
+            return min(255, max(0, scaled))
+        }
+        
+        let red = toComponent(rgbColor.redComponent)
+        let green = toComponent(rgbColor.greenComponent)
+        let blue = toComponent(rgbColor.blueComponent)
         return String(format: "#%02X%02X%02X", red, green, blue)
     }
 }

@@ -1,5 +1,5 @@
 // Pane/ResizableSplitStack.swift
-// Implements an arbitrary-length resizable stack of views.
+// An arbitrary-length resizable stack of views with draggable dividers.
 
 import SwiftUI
 
@@ -8,6 +8,8 @@ struct ResizableSplitStack<Content: View, Data: RandomAccessCollection>: View wh
     let data: Data
     @Binding var fractions: [CGFloat]
     let content: (Data.Element) -> Content
+    
+    @State private var dragStartFractions: [CGFloat]? = nil
     
     init(axis: Axis, data: Data, fractions: Binding<[CGFloat]>, @ViewBuilder content: @escaping (Data.Element) -> Content) {
         self.axis = axis
@@ -18,30 +20,21 @@ struct ResizableSplitStack<Content: View, Data: RandomAccessCollection>: View wh
     
     var body: some View {
         GeometryReader { proxy in
+            let totalSize = axis == .horizontal ? proxy.size.width : proxy.size.height
+            let dividerThickness: CGFloat = 6
+            let dividerCount = CGFloat(max(0, data.count - 1))
+            let availableSize = max(1, totalSize - (dividerCount * dividerThickness))
+            
             if axis == .horizontal {
                 HStack(spacing: 0) {
                     ForEach(Array(data.enumerated()), id: \.element.id) { index, item in
                         content(item)
-                            .frame(width: max(0, proxy.size.width * getFraction(at: index)))
+                            .frame(width: max(40, availableSize * fraction(at: index)))
+                            .clipped()
                         
-                        // Add a divider after each item except the last
                         if index < data.count - 1 {
-                            Divider()
-                                .frame(width: 8)
-                                .background(Color.white.opacity(0.001))
-                                .onHover { inside in
-                                    if inside {
-                                        NSCursor.resizeLeftRight.push()
-                                    } else {
-                                        NSCursor.pop()
-                                    }
-                                }
-                                .gesture(
-                                    DragGesture()
-                                        .onChanged { value in
-                                            adjustFraction(index: index, delta: value.translation.width / proxy.size.width)
-                                        }
-                                )
+                            dividerView(index: index, totalSize: availableSize, isHorizontal: true)
+                                .frame(width: dividerThickness)
                         }
                     }
                 }
@@ -49,25 +42,12 @@ struct ResizableSplitStack<Content: View, Data: RandomAccessCollection>: View wh
                 VStack(spacing: 0) {
                     ForEach(Array(data.enumerated()), id: \.element.id) { index, item in
                         content(item)
-                            .frame(height: max(0, proxy.size.height * getFraction(at: index)))
+                            .frame(height: max(40, availableSize * fraction(at: index)))
+                            .clipped()
                         
                         if index < data.count - 1 {
-                            Divider()
-                                .frame(height: 8)
-                                .background(Color.white.opacity(0.001))
-                                .onHover { inside in
-                                    if inside {
-                                        NSCursor.resizeUpDown.push()
-                                    } else {
-                                        NSCursor.pop()
-                                    }
-                                }
-                                .gesture(
-                                    DragGesture()
-                                        .onChanged { value in
-                                            adjustFraction(index: index, delta: value.translation.height / proxy.size.height)
-                                        }
-                                )
+                            dividerView(index: index, totalSize: availableSize, isHorizontal: false)
+                                .frame(height: dividerThickness)
                         }
                     }
                 }
@@ -75,28 +55,84 @@ struct ResizableSplitStack<Content: View, Data: RandomAccessCollection>: View wh
         }
     }
     
-    private func getFraction(at index: Int) -> CGFloat {
-        if index < fractions.count {
-            return fractions[index]
-        }
-        return 1.0 / CGFloat(max(1, data.count))
+    // MARK: - Divider
+    
+    @ViewBuilder
+    private func dividerView(index: Int, totalSize: CGFloat, isHorizontal: Bool) -> some View {
+        Rectangle()
+            .fill(Color.white.opacity(0.08))
+            .contentShape(Rectangle())
+            .onHover { inside in
+                if inside {
+                    (isHorizontal ? NSCursor.resizeLeftRight : NSCursor.resizeUpDown).push()
+                } else {
+                    NSCursor.pop()
+                }
+            }
+            .gesture(
+                DragGesture(minimumDistance: 1)
+                    .onChanged { value in
+                        if dragStartFractions == nil {
+                            dragStartFractions = fractions
+                        }
+                        guard let start = dragStartFractions else { return }
+                        guard totalSize.isFinite, totalSize > 1 else { return }
+                        let delta = (isHorizontal ? value.translation.width : value.translation.height) / totalSize
+                        applyDelta(index: index, delta: delta, startFractions: start)
+                    }
+                    .onEnded { _ in
+                        dragStartFractions = nil
+                    }
+            )
     }
     
-    private func adjustFraction(index: Int, delta: CGFloat) {
-        guard index < fractions.count - 1 else { return }
+    // MARK: - Fraction Logic
+    
+    private func fraction(at index: Int) -> CGFloat {
+        guard index < fractions.count else {
+            return 1.0 / CGFloat(max(1, data.count))
+        }
         
-        let minFraction: CGFloat = 0.1
-        let currentSize1 = fractions[index]
-        let currentSize2 = fractions[index + 1]
+        let value = fractions[index]
+        if !value.isFinite || value <= 0 {
+            return 1.0 / CGFloat(max(1, data.count))
+        }
+        return value
+    }
+    
+    private func applyDelta(index: Int, delta: CGFloat, startFractions: [CGFloat]) {
+        guard index < startFractions.count - 1 else { return }
+        guard delta.isFinite else { return }
         
-        // Ensure sizes don't go below minimum
-        let newSize1 = max(minFraction, min(currentSize1 + currentSize2 - minFraction, currentSize1 + delta))
-        let newSize2 = currentSize1 + currentSize2 - newSize1
+        let minFraction: CGFloat = 0.05
+        let combined = startFractions[index] + startFractions[index + 1]
+        guard combined.isFinite, combined > minFraction * 2 else { return }
         
-        var newFractions = fractions
-        newFractions[index] = newSize1
-        newFractions[index + 1] = newSize2
+        let newA = max(minFraction, min(combined - minFraction, startFractions[index] + delta))
+        let newB = combined - newA
+        guard newA.isFinite, newB.isFinite else { return }
         
-        fractions = newFractions
+        var updated = fractions
+        // Ensure the array is the right size
+        while updated.count < data.count {
+            updated.append(1.0 / CGFloat(max(1, data.count)))
+        }
+        if updated.count > data.count {
+            updated = Array(updated.prefix(data.count))
+        }
+        
+        updated[index] = newA
+        updated[index + 1] = newB
+        
+        let sanitized = updated.map { value in
+            if value.isFinite, value > 0 {
+                return value
+            }
+            return minFraction
+        }
+        let total = sanitized.reduce(CGFloat.zero, +)
+        guard total.isFinite, total > 0 else { return }
+        
+        fractions = sanitized.map { $0 / total }
     }
 }

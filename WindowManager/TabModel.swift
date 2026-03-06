@@ -11,6 +11,7 @@ class TabModel: Identifiable, ObservableObject {
     @Published var activeSessionId: UUID?
     @Published var layout: PaneLayoutType
     @Published var sessionFractions: [CGFloat]
+    @Published var preferredSplitLayout: PaneLayoutType
     
     init(id: UUID = UUID(), title: String = "Tab", sessions: [TerminalSession] = [], layout: PaneLayoutType = .single) {
         self.id = id
@@ -18,58 +19,118 @@ class TabModel: Identifiable, ObservableObject {
         self.sessions = sessions
         self.layout = layout
         self.activeSessionId = sessions.first?.id
-        
-        if sessions.isEmpty {
-            self.sessionFractions = []
-        } else {
-            let initialFraction = 1.0 / CGFloat(sessions.count)
-            self.sessionFractions = Array(repeating: initialFraction, count: sessions.count)
-        }
+        self.preferredSplitLayout = layout == .verticalSplit ? .verticalSplit : .horizontalSplit
+        self.sessionFractions = Self.evenFractions(count: sessions.count)
     }
     
     func addSession(_ session: TerminalSession) {
         sessions.append(session)
-        if activeSessionId == nil {
-            activeSessionId = session.id
-            sessionFractions = [1.0]
-        } else {
-            // Find the active session to split its fraction
-            if let activeId = activeSessionId, let activeIndex = sessions.firstIndex(where: { $0.id == activeId }) {
-                // The new session is added at the end, but we need to split the fraction of the active session
-                // Since this simple array of fractions maps to the sessions array, we just update the fractions
-                var currentFractions = sessionFractions
-                let activeFraction = currentFractions[activeIndex]
-                let splitFraction = activeFraction / 2.0
-                currentFractions[activeIndex] = splitFraction
-                currentFractions.append(splitFraction)
-                sessionFractions = currentFractions
+        
+        // Split the active session's fraction in half for the new pane if possible.
+        let minFraction: CGFloat = 0.02
+        if let activeId = activeSessionId,
+           let activeIndex = sessions.dropLast().firstIndex(where: { $0.id == activeId }),
+           activeIndex < sessionFractions.count,
+           sessionFractions.count == sessions.count - 1,
+           sessionFractions[activeIndex].isFinite,
+           sessionFractions[activeIndex] > minFraction * 2 {
+            let activeFraction = sessionFractions[activeIndex]
+            let splitSize = max(minFraction, activeFraction / 2.0)
+            let retainedSize = activeFraction - splitSize
+            if retainedSize.isFinite, retainedSize > 0 {
+                sessionFractions[activeIndex] = retainedSize
+                sessionFractions.append(splitSize)
             } else {
-                // Fallback if no active session found
-                let count = max(1, sessions.count)
-                sessionFractions = Array(repeating: 1.0 / CGFloat(count), count: count)
+                sessionFractions = Self.evenFractions(count: sessions.count)
             }
-            activeSessionId = session.id
+        } else {
+            sessionFractions = Self.evenFractions(count: sessions.count)
         }
+        
+        activeSessionId = session.id
+        normalizeFractions()
+        refreshLayoutForSessionCount()
     }
     
     func removeSession(id: UUID) {
-        guard let indexToRemove = sessions.firstIndex(where: { $0.id == id }) else { return }
+        guard let index = sessions.firstIndex(where: { $0.id == id }) else { return }
         
-        let removedFraction = sessionFractions[indexToRemove]
-        sessions.remove(at: indexToRemove)
-        sessionFractions.remove(at: indexToRemove)
+        sessions.remove(at: index)
         
         if activeSessionId == id {
-            activeSessionId = sessions.first?.id
+            if sessions.indices.contains(index) {
+                activeSessionId = sessions[index].id
+            } else {
+                activeSessionId = sessions.last?.id
+            }
         }
         
-        guard !sessions.isEmpty else { return }
-        
-        // Give the removed fraction to the adjacent session (preferring the one before it, or after if it was first)
-        let targetIndex = max(0, indexToRemove - 1)
-        if targetIndex < sessionFractions.count {
-            sessionFractions[targetIndex] += removedFraction
+        if index < sessionFractions.count {
+            let removedFraction = sessionFractions.remove(at: index)
+            if !sessionFractions.isEmpty {
+                let target = min(max(0, index - 1), sessionFractions.count - 1)
+                if removedFraction.isFinite, removedFraction > 0 {
+                    sessionFractions[target] += removedFraction
+                }
+            }
         }
+        
+        normalizeFractions()
+        refreshLayoutForSessionCount()
+    }
+    
+    func focusSession(_ sessionId: UUID) {
+        if sessions.contains(where: { $0.id == sessionId }) {
+            activeSessionId = sessionId
+        }
+    }
+    
+    func setPreferredSplitLayout(vertical: Bool) {
+        preferredSplitLayout = vertical ? .verticalSplit : .horizontalSplit
+    }
+    
+    private func normalizeFractions() {
+        let count = sessions.count
+        guard count > 0 else {
+            sessionFractions = []
+            return
+        }
+        
+        guard sessionFractions.count == count else {
+            sessionFractions = Self.evenFractions(count: count)
+            return
+        }
+        
+        let sanitized = sessionFractions.map { value -> CGFloat in
+            guard value.isFinite, value > 0 else { return 0.01 }
+            return max(0.01, value)
+        }
+        let total = sanitized.reduce(CGFloat.zero, +)
+        guard total.isFinite, total > 0 else {
+            sessionFractions = Self.evenFractions(count: count)
+            return
+        }
+        
+        sessionFractions = sanitized.map { $0 / total }
+    }
+    
+    private func refreshLayoutForSessionCount() {
+        switch sessions.count {
+        case 0, 1:
+            layout = .single
+        case 2:
+            if layout == .single || layout == .grid {
+                layout = preferredSplitLayout
+            }
+        default:
+            layout = .grid
+        }
+    }
+    
+    private static func evenFractions(count: Int) -> [CGFloat] {
+        guard count > 0 else { return [] }
+        let value = 1.0 / CGFloat(count)
+        return Array(repeating: value, count: count)
     }
 }
 
